@@ -18,10 +18,10 @@ public class ParallelSP {
     public static final String TABLE_NAME = "parallelSP";
     public static final byte [] familyMeta = Bytes.toBytes("meta");
     public static final byte [] familyNode = Bytes.toBytes("node");
-    public static final byte [] color = Bytes.toBytes("color");
+    public static final byte [] modifiedLast = Bytes.toBytes("moded");
     public static final byte [] distance = Bytes.toBytes("distance");
-    public static final byte [] grey = Bytes.toBytes("g");
-    public static final byte [] white = Bytes.toBytes("w");
+    public static final byte [] no = Bytes.toBytes(false);
+    public static final byte [] yes = Bytes.toBytes(true);
     public static final byte [] infDistance = Bytes.toBytes(Integer.MAX_VALUE);
 
     private static void setupTable() throws IOException {
@@ -43,8 +43,7 @@ public class ParallelSP {
             System.exit(-1);
         }
         setupTable();
-        int exitCode = ToolRunner.run(HBaseConfiguration.create(),
-                new MapImporter(), args);
-        System.exit(exitCode);
+        ToolRunner.run(HBaseConfiguration.create(), new MapImporter(), args);
+        ToolRunner.run(HBaseConfiguration.create(), new DistanceImprove(), args);
     }
 }

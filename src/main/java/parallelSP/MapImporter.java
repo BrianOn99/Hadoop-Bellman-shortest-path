@@ -31,7 +31,7 @@ public class MapImporter extends Configured implements Tool {
             // Extract each value
             byte [] from = Bytes.toBytes(tokens[0]);
             byte [] to = Bytes.toBytes(tokens[1]);
-            byte [] weight = Bytes.toBytes(tokens[2]);
+            byte [] weight = Bytes.toBytes(Integer.parseInt(tokens[2]));
             Put put = new Put(from);
             put.add(ParallelSP.familyNode, to, weight);
             context.write(new ImmutableBytesWritable(from), put);
@@ -45,22 +45,26 @@ public class MapImporter extends Configured implements Tool {
         public void cleanup(Context context)
                 throws IOException, InterruptedException {
             super.cleanup(context);
+            Configuration conf = context.getConfiguration();
+            String sourceNode = conf.get("sourceNode");
             for (String node: nodesSeen) {
                 byte [] nodeName = Bytes.toBytes(node);
+                boolean isSource = node.equals(sourceNode);
+                byte [] distance =  isSource ? Bytes.toBytes(0) : ParallelSP.infDistance;
+                byte [] modifiedLast =  isSource ? ParallelSP.yes : ParallelSP.no;
                 Put put = new Put(nodeName);
-                put.add(ParallelSP.familyMeta, ParallelSP.color, ParallelSP.white);
-                put.add(ParallelSP.familyMeta, ParallelSP.distance, ParallelSP.infDistance);
+                put.add(ParallelSP.familyMeta, ParallelSP.modifiedLast, modifiedLast);
+                put.add(ParallelSP.familyMeta, ParallelSP.distance, distance);
                 context.write(new ImmutableBytesWritable(nodeName), put);
             }
         }
     }
 
     public int run(String[] args) throws Exception {
-        if (args.length != 1) {
-            System.err.println("Error: Not enough command line argument");
-            return -1;
-        }
+        String sourceNode = "1";
+
         Configuration conf = getConf();
+        conf.set("sourceNode", sourceNode);
         Job job = new Job(conf);
         job.setJarByClass(MapImporter.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
