@@ -73,11 +73,15 @@ public class DistanceImprove extends Configured implements Tool {
                     context.getCounter(MyCounter.POSDIST).increment(1);
                 }
             }
+
+            Put put = new Put(Bytes.toBytes(key.toString()));
             if (minDist < origDist) {
-                Put put = new Put(Bytes.toBytes("gg" + key.toString()));
                 put.add(ParallelSP.familyMeta, ParallelSP.distance ,Bytes.toBytes(minDist));
-                context.write(null, put);
+                put.add(ParallelSP.familyMeta, ParallelSP.modifiedLast, ParallelSP.yes);
+            } else {
+                put.add(ParallelSP.familyMeta, ParallelSP.modifiedLast, ParallelSP.no);
             }
+            context.write(null, put);
         }
     }
 

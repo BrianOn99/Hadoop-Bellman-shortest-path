@@ -61,7 +61,7 @@ public class MapImporter extends Configured implements Tool {
     }
 
     public int run(String[] args) throws Exception {
-        String sourceNode = "1";
+        String sourceNode = "a";
 
         Configuration conf = getConf();
         conf.set("sourceNode", sourceNode);
