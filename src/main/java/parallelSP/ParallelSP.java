@@ -44,6 +44,10 @@ public class ParallelSP {
         }
         setupTable();
         ToolRunner.run(HBaseConfiguration.create(), new MapImporter(), args);
-        ToolRunner.run(HBaseConfiguration.create(), new DistanceImprove(), args);
+        while (true) {
+            int improved = ToolRunner.run(HBaseConfiguration.create(),
+                                          new DistanceImprove(), args);
+            if (improved == 0) break;
+        }
     }
 }

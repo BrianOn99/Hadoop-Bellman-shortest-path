@@ -21,7 +21,7 @@ import org.apache.hadoop.util.*;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 
 public class DistanceImprove extends Configured implements Tool {
-    static enum MyCounter { NEGDIST, POSDIST };
+    static enum MyCounter { NEGDIST, POSDIST, IMPROVED };
 
     public static class NodeMapper extends TableMapper<Text, IntWritable> {
 
@@ -67,10 +67,10 @@ public class DistanceImprove extends Configured implements Tool {
                 int y = x.get();
                 if (y <= 0) {
                     origDist = -y;
-                    context.getCounter(MyCounter.NEGDIST).increment(1);
+                    //context.getCounter(MyCounter.NEGDIST).increment(1);
                 } else if (y < minDist) {
                     minDist = y;
-                    context.getCounter(MyCounter.POSDIST).increment(1);
+                    //context.getCounter(MyCounter.POSDIST).increment(1);
                 }
             }
 
@@ -78,6 +78,7 @@ public class DistanceImprove extends Configured implements Tool {
             if (minDist < origDist) {
                 put.add(ParallelSP.familyMeta, ParallelSP.distance ,Bytes.toBytes(minDist));
                 put.add(ParallelSP.familyMeta, ParallelSP.modifiedLast, ParallelSP.yes);
+                context.getCounter(MyCounter.IMPROVED).increment(1);
             } else {
                 put.add(ParallelSP.familyMeta, ParallelSP.modifiedLast, ParallelSP.no);
             }
@@ -114,6 +115,6 @@ public class DistanceImprove extends Configured implements Tool {
             job);
 
         job.waitForCompletion(true);
-        return 0;
+        return (int) job.getCounters().findCounter(MyCounter.IMPROVED).getValue();
     }
 }
