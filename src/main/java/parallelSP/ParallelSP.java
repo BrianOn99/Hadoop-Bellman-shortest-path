@@ -38,16 +38,23 @@ public class ParallelSP {
     }
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 1) {
+        if (args.length != 4) {
             System.err.println("Error: Not enough command line argument");
             System.exit(-1);
         }
+        String source = args[0];
+        int maxTry = Integer.parseInt(args[1]);
+        String inPath = args[2];
+        String outPath = args[3];
+
         setupTable();
-        ToolRunner.run(HBaseConfiguration.create(), new MapImporter(), args);
-        while (true) {
+        ToolRunner.run(HBaseConfiguration.create(), new MapImporter(), new String[]{source, inPath});
+        for (int trialno=1;; trialno++) {
             int improved = ToolRunner.run(HBaseConfiguration.create(),
-                                          new DistanceImprove(), args);
+                                          new DistanceImprove(), new String[]{});
             if (improved == 0) break;
+            if (maxTry != 0 && maxTry == trialno) break;
         }
+        ToolRunner.run(HBaseConfiguration.create(), new SPExporter(), new String[]{outPath});
     }
 }

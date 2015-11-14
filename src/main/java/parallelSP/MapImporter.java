@@ -61,13 +61,14 @@ public class MapImporter extends Configured implements Tool {
     }
 
     public int run(String[] args) throws Exception {
-        String sourceNode = "a";
+        String sourceNode = args[0];
+        String inPath = args[1];
 
         Configuration conf = getConf();
         conf.set("sourceNode", sourceNode);
         Job job = new Job(conf);
         job.setJarByClass(MapImporter.class);
-        FileInputFormat.addInputPath(job, new Path(args[0]));
+        FileInputFormat.addInputPath(job, new Path(inPath));
         job.setMapperClass(ImportMapper.class);
         TableMapReduceUtil.initTableReducerJob(ParallelSP.TABLE_NAME, null, job);
         job.setNumReduceTasks(0);
