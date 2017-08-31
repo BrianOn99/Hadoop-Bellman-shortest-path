@@ -14,7 +14,8 @@ So, most optimization to Bellman Ford could be applied, which I applied 1
 here: only vertex updated last time are checked.
 
 This is a maven project.  Dependency on HBase is included.
-The version of Hbase is very old (0.95), because
+The version of Hbase is very old (0.95), because it is the requirement of
+the assignment.
 
 ## Syntax:
 ```
